@@ -1,4 +1,3 @@
-netlify/functions/fmp.js
 const https = require('https');
 
 function httpsGet(url) {
