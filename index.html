@@ -886,7 +886,7 @@ async function testFmpKey() {
   var el = document.getElementById('fmp-status');
   el.textContent = '테스트 중...'; el.className = 'api-status api-none';
   try {
-    var r = await fetch('/api/fmp?action=test&ticker=AAPL');
+    var r = await fetch('/.netlify/functions/fmp?action=test&ticker=AAPL');
     var d = await r.json();
     if(d && d.ok) {
       el.textContent = '✓ 서버 연결 성공'; el.className = 'api-status api-ok';
@@ -910,7 +910,7 @@ function updateApiStatuses() {
 // ──────────────────────────────────────────────────────────
 async function fetchFmpData(ticker) {
   try {
-    var r = await fetch('/api/fmp?ticker=' + encodeURIComponent(ticker));
+    var r = await fetch('/.netlify/functions/fmp?ticker=' + encodeURIComponent(ticker));
     if(!r.ok) return null;
     var data = await r.json();
     if(data.error) return null;
@@ -923,7 +923,7 @@ async function fetchFmpData(ticker) {
 
 async function fetchPriceHistory(ticker, period) {
   try {
-    var r = await fetch('/api/fmp?action=history&ticker=' + encodeURIComponent(ticker) + '&period=' + (period||'3m'));
+    var r = await fetch('/.netlify/functions/fmp?action=history&ticker=' + encodeURIComponent(ticker) + '&period=' + (period||'3m'));
     if(!r.ok) return null;
     var data = await r.json();
     return Array.isArray(data) && data.length ? data : null;
