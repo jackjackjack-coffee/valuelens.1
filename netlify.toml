@@ -1,0 +1,8 @@
+[build]
+  functions = "netlify/functions"
+  publish = "."
+
+[[redirects]]
+  from = "/api/fmp"
+  to = "/.netlify/functions/fmp"
+  status = 200
