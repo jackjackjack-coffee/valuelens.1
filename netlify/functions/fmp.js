@@ -65,17 +65,19 @@ exports.handler = async function(event) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'ticker required' }) };
     }
 
-    const [quoteData, overviewData] = await Promise.all([
+    const [quoteData, overviewData, incomeData] = await Promise.all([
       httpsGet(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${key}`),
-      httpsGet(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${key}`)
+      httpsGet(`https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${key}`),
+      httpsGet(`https://www.alphavantage.co/query?function=CASH_FLOW&symbol=${ticker}&apikey=${key}`)
     ]);
 
     const quote = quoteData['Global Quote'];
-    const ov = overviewData;
-
     if (!quote || !quote['05. price']) {
       return { statusCode: 404, headers, body: JSON.stringify({ error: 'ticker not found' }) };
     }
+
+    const ov = overviewData || {};
+    const cf = incomeData && incomeData.annualReports && incomeData.annualReports[0] || {};
 
     const price = parseFloat(quote['05. price']) || 0;
     const eps = parseFloat(ov['EPS']) || 0;
@@ -85,15 +87,17 @@ exports.handler = async function(event) {
     const pe = parseFloat(ov['PERatio']) || 25;
     const evEbitda = parseFloat(ov['EVToEBITDA']) || 15;
     const revenueGrowth = parseFloat(ov['QuarterlyRevenueGrowthYOY']) || 0.08;
+    const fcf = Math.abs(parseFloat(cf['operatingCashflow']) / 1e6) || 0;
+    const totalDebt = parseFloat(cf['capitalExpenditures']) || 0;
 
     const result = {
       name: ov['Name'] || ticker,
       price,
       eps,
       div,
-      fcf: Math.abs(parseFloat(ov['OperatingCashflowTTM']) / 1e6) || 0,
+      fcf,
       shares,
-      debt: (parseFloat(ov['TotalDebt']) - parseFloat(ov['CashAndCashEquivalentsAtCarryingValue'])) / 1e6 || 0,
+      debt: totalDebt / 1e6 || 0,
       beta,
       sector: ov['Sector'] || '',
       industry: ov['Industry'] || '',
