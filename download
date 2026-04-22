@@ -1,6 +1,0 @@
-.git
-.wrangler
-node_modules
-src
-wrangler.toml
-*.md
