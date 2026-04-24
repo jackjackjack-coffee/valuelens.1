@@ -1,0 +1,6 @@
+name = "project1"
+main = "fmp.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# AV_API_KEY is set in the dashboard, not here
